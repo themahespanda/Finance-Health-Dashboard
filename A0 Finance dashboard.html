@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ACRU Finance — Dashboard Widget</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 9999px; }
+    .mono-num { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+  </style>
+</head>
+<body class="bg-transparent text-[var(--foreground)] antialiased p-2 sm:p-4 font-sans text-xs">
+  
+  <div class="max-w-7xl mx-auto space-y-4">
+    
+    <!-- ACRU HEADER BAR -->
+    <header class="bg-white border border-[#E2E8F0] rounded-2xl p-4 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3 text-slate-800">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-slate-900 flex items-center justify-center text-white shrink-0 shadow-sm">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2L3 7V17L12 22L21 17V7L12 2Z" fill="#1E293B"/>
+            <path d="M12 6L7 12H17L12 6Z" fill="#22C55E"/>
+            <circle cx="12" cy="15" r="2" fill="#84CC16"/>
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-baseline gap-1.5">
+            <h1 class="text-base font-extrabold tracking-tight text-slate-900">ACRU</h1>
+            <span class="text-xs font-bold text-green-600">Finance</span>
+          </div>
+          <p class="text-[11px] text-slate-500">Understand your money. Improve your financial health.</p>
+        </div>
+      </div>
+
+      <!-- Quick Action Controls -->
+      <div class="flex items-center gap-2">
+        <button onclick="toggleProfileDrawer()" class="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-slate-900 text-white hover:bg-green-700 transition-all flex items-center gap-1.5">
+          <i class="fa-solid fa-sliders text-[10px]"></i> Edit Profile
+        </button>
+        <button onclick="loadDefaultProfile()" class="px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-100 border border-slate-200 text-slate-700 hover:bg-slate-200 transition-all">
+          Reset Benchmark
+        </button>
+      </div>
+    </header>
+
+    <!-- 3-COLUMN ACRU CONTAINER -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+      
+      <!-- ========================================== -->
+      <!-- COLUMN 1 & 2: MAIN ANALYTICS (8 COLS) -->
+      <!-- ========================================== -->
+      <div class="lg:col-span-8 space-y-4">
+        
+        <!-- TOP BALANCE OVERVIEW CARD -->
+        <div class="bg-white border border-[#E2E8F0] rounded-2xl p-4 sm:p-5 shadow-sm space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
+            <div>
+              <span class="text-[11px] uppercase tracking-wider font-semibold text-slate-400">Total Estimated Net Worth</span>
+              <div class="flex items-baseline gap-2.5 mt-0.5">
+                <span id="disp-networth" class="mono-num text-2xl font-extrabold text-slate-900">₹30,000</span>
+                <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-green-50 text-green-700 border border-green-200">
+                  <i class="fa-solid fa-arrow-trend-up"></i> +12.4% vs last mo
+                </span>
+              </div>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="text-[10px] font-semibold px-2.5 py-1 rounded-md bg-slate-100 text-slate-600">Oct 2026</span>
+              <span class="text-[10px] font-semibold px-2 py-1 rounded-md bg-lime-50 text-lime-700 border border-lime-200">Live Analytics</span>
+            </div>
+          </div>
+
+          <!-- 3 Summaries (Income / Expenses / Monthly Saved) -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            
+            <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-3 flex items-start gap-3">
+              <div class="w-8 h-8 rounded-lg bg-green-100 text-green-700 flex items-center justify-center shrink-0">
+                <i class="fa-solid fa-arrow-down-left"></i>
+              </div>
+              <div>
+                <span class="text-[10px] font-semibold text-slate-400 block">Total Monthly Income</span>
+                <strong id="disp-income" class="mono-num text-base font-bold text-green-700 block">₹85,000</strong>
+                <span class="text-[10px] text-slate-500">₹80k + ₹5k other</span>
+              </div>
+            </div>
+
+            <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-3 flex items-start gap-3">
+              <div class="w-8 h-8 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center shrink-0">
+                <i class="fa-solid fa-arrow-up-right"></i>
+              </div>
+              <div>
+                <span class="text-[10px] font-semibold text-slate-400 block">Total Monthly Expenses</span>
+                <strong id="disp-expenses" class="mono-num text-base font-bold text-orange-600 block">₹45,000</strong>
+                <span id="disp-expense-sub" class="text-[10px] text-slate-500">52.9% of total income</span>
+              </div>
+            </div>
+
+            <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-3 flex items-start gap-3">
+              <div class="w-8 h-8 rounded-lg bg-lime-100 text-lime-700 flex items-center justify-center shrink-0">
+                <i class="fa-solid fa-piggy-bank"></i>
+              </div>
+              <div>
+                <span class="text-[10px] font-semibold text-slate-400 block">Monthly Saved Balance</span>
+                <strong id="disp-saved" class="mono-num text-base font-bold text-lime-700 block">₹32,000</strong>
+                <span id="disp-savings-sub" class="text-[10px] text-slate-500">Savings Rate: 37.6%</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- 2-COLUMN ANALYTICS GRID -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          
+          <!-- Spending Limit Progress Card -->
+          <div class="bg-white border border-[#E2E8F0] rounded-2xl p-4 shadow-sm space-y-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="font-bold text-slate-900 text-xs">Monthly Spending Limit</h3>
+                <span class="text-[10px] text-slate-400">60% income standard benchmark</span>
+              </div>
+              <span id="badge-spending" class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-green-100 text-green-700">On Track</span>
+            </div>
+
+            <div class="space-y-1.5 pt-1">
+              <div class="flex justify-between items-baseline">
+                <span class="mono-num text-lg font-extrabold text-slate-900" id="disp-spent-num">₹45,000</span>
+                <span class="mono-num text-xs font-semibold text-slate-500" id="disp-spent-cap">/ ₹51,000 Limit</span>
+              </div>
+              <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                <div id="bar-spending-fill" class="bg-gradient-to-r from-green-600 to-lime-500 h-full rounded-full transition-all duration-500" style="width: 88.2%"></div>
+              </div>
+              <div class="flex justify-between text-[11px] text-slate-500 pt-0.5">
+                <span id="disp-safe-cushion"><i class="fa-solid fa-circle-check text-green-600"></i> ₹6,000 remaining cushion</span>
+                <strong class="mono-num text-slate-700" id="disp-spent-pct">88.2%</strong>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-1.5 pt-2 border-t border-slate-100 text-center">
+              <div class="bg-slate-50 p-1.5 rounded-lg">
+                <span class="text-[9px] text-slate-400 block">Needs</span>
+                <strong class="mono-num text-[11px] text-slate-800" id="disp-needs">₹37,000</strong>
+              </div>
+              <div class="bg-slate-50 p-1.5 rounded-lg">
+                <span class="text-[9px] text-slate-400 block">Wants</span>
+                <strong class="mono-num text-[11px] text-slate-800" id="disp-wants">₹8,000</strong>
+              </div>
+              <div class="bg-slate-50 p-1.5 rounded-lg">
+                <span class="text-[9px] text-slate-400 block">Debt EMI</span>
+                <strong class="mono-num text-[11px] text-slate-800" id="disp-emi">₹8,000</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Financial Health Score Card -->
+          <div class="bg-white border border-[#E2E8F0] rounded-2xl p-4 shadow-sm space-y-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="font-bold text-slate-900 text-xs">Financial Health Score</h3>
+                <span class="text-[10px] text-slate-400">100-point transparent model</span>
+              </div>
+              <span id="badge-score-grade" class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-lime-100 text-lime-800">Excellent</span>
+            </div>
+
+            <div class="flex items-center gap-4">
+              <!-- SVG Gauge -->
+              <div class="relative w-24 h-24 shrink-0 flex items-center justify-center">
+                <svg class="w-24 h-24 -rotate-90" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="40" stroke="#E2E8F0" stroke-width="9" fill="none"/>
+                  <circle id="svg-score-fill" cx="50" cy="50" r="40" stroke="#84CC16" stroke-width="9" stroke-linecap="round" stroke-dasharray="251.3" stroke-dashoffset="12.5" fill="none" class="transition-all duration-700"/>
+                </svg>
+                <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+                  <span id="disp-score-num" class="mono-num text-xl font-black text-slate-900">95</span>
+                  <span class="text-[9px] font-semibold text-slate-400">/ 100</span>
+                </div>
+              </div>
+
+              <!-- 4 Component Micro-Bars -->
+              <div class="flex-1 space-y-1.5">
+                <div>
+                  <div class="flex justify-between text-[10px]">
+                    <span class="text-slate-500">Savings Rate</span>
+                    <strong class="mono-num" id="pts-sav">30 / 30</strong>
+                  </div>
+                  <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                    <div id="bar-sav" class="bg-lime-500 h-full rounded-full" style="width: 100%"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="flex justify-between text-[10px]">
+                    <span class="text-slate-500">Debt Management</span>
+                    <strong class="mono-num" id="pts-dti">25 / 25</strong>
+                  </div>
+                  <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                    <div id="bar-dti" class="bg-green-600 h-full rounded-full" style="width: 100%"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="flex justify-between text-[10px]">
+                    <span class="text-slate-500">Emergency Fund</span>
+                    <strong class="mono-num" id="pts-emg">20 / 25</strong>
+                  </div>
+                  <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                    <div id="bar-emg" class="bg-lime-500 h-full rounded-full" style="width: 80%"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="flex justify-between text-[10px]">
+                    <span class="text-slate-500">Cash Flow Pace</span>
+                    <strong class="mono-num" id="pts-cf">20 / 20</strong>
+                  </div>
+                  <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                    <div id="bar-cf" class="bg-green-600 h-full rounded-full" style="width: 100%"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- COST ANALYSIS & BUDGET OPTIMIZATION TIPS -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          
+          <!-- Cost Analysis Card -->
+          <div class="bg-white border border-[#E2E8F0] rounded-2xl p-4 shadow-sm space-y-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="font-bold text-slate-900 text-xs">Cost Analysis</h3>
+                <span class="text-[10px] text-slate-400">Expense category distribution</span>
+              </div>
+              <span id="disp-cost-total" class="mono-num text-[11px] font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md">₹45,000 / mo</span>
+            </div>
+
+            <!-- Segmented Horizontal Bar -->
+            <div class="w-full h-3.5 rounded-full overflow-hidden flex bg-slate-100" id="cost-bar">
+              <!-- Dynamically populated -->
+            </div>
+
+            <!-- Legend Grid -->
+            <div class="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px]" id="cost-legend">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- Budget Optimization Card -->
+          <div class="bg-white border border-[#E2E8F0] rounded-2xl p-4 shadow-sm space-y-2.5">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded-lg bg-lime-100 text-lime-700 flex items-center justify-center text-xs">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+              </span>
+              <div>
+                <h3 class="font-bold text-slate-900 text-xs">Optimize your budget with these quick tips</h3>
+                <span class="text-[10px] text-slate-400">Rule-based recommendations</span>
+              </div>
+            </div>
+
+            <div class="space-y-2" id="tips-container">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+
+        </div>
+
+        <!-- GOAL TRACKER CARD -->
+        <div class="bg-white border border-[#E2E8F0] rounded-2xl p-4 shadow-sm space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-slate-900 text-xs">Financial Goal Tracker</h3>
+            <span class="text-[10px] text-slate-400 font-medium">Automatic milestones</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            
+            <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-3 space-y-2">
+              <div class="flex justify-between items-center">
+                <span class="text-[10px] font-bold text-slate-700">Emergency Cushion</span>
+                <span id="goal-emg-pct" class="mono-num text-[11px] font-bold text-green-700">66.7%</span>
+              </div>
+              <div class="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
+                <div id="goal-emg-bar" class="bg-green-600 h-full rounded-full" style="width: 66.7%"></div>
+              </div>
+              <span id="goal-emg-txt" class="text-[9px] text-slate-500 block">4.0 of 6.0 months covered</span>
+            </div>
+
+            <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-3 space-y-2">
+              <div class="flex justify-between items-center">
+                <span class="text-[10px] font-bold text-slate-700">Annual Savings Goal</span>
+                <span id="goal-ann-pct" class="mono-num text-[11px] font-bold text-lime-700">76.8%</span>
+              </div>
+              <div class="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
+                <div id="goal-ann-bar" class="bg-lime-500 h-full rounded-full" style="width: 76.8%"></div>
+              </div>
+              <span id="goal-ann-txt" class="text-[9px] text-slate-500 block">₹3,84,000 / ₹5,00,000</span>
+            </div>
+
+            <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-3 space-y-2">
+              <div class="flex justify-between items-center">
+                <span class="text-[10px] font-bold text-slate-700">Investment Target</span>
+                <span id="goal-inv-pct" class="mono-num text-[11px] font-bold text-orange-600">35.0%</span>
+              </div>
+              <div class="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
+                <div id="goal-inv-bar" class="bg-orange-500 h-full rounded-full" style="width: 35.0%"></div>
+              </div>
+              <span id="goal-inv-txt" class="text-[9px] text-slate-500 block">₹3,50,000 / ₹10,00,000</span>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ========================================== -->
+      <!-- COLUMN 3: RIGHT SIDEBAR (MY CARD & TXNS) -->
+      <!-- ========================================== -->
+      <div class="lg:col-span-4 space-y-4">
+        
+        <div class="bg-white border border-[#E2E8F0] rounded-2xl p-4 shadow-sm space-y-4">
+          
+          <div class="flex items-center justify-between">
+            <h2 class="text-sm font-bold text-slate-900">My Card</h2>
+            <button onclick="demoAlert('Add New Virtual Card dialog opened')" class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-slate-700 hover:bg-slate-200">
+              <i class="fa-solid fa-plus text-[9px]"></i> Add Card
+            </button>
+          </div>
+
+          <!-- Green Debit Card Preview -->
+          <div class="w-full h-44 rounded-2xl p-4 text-white flex flex-col justify-between shadow-md relative overflow-hidden bg-gradient-to-br from-green-700 via-green-800 to-emerald-950">
+            <div class="flex justify-between items-center">
+              <div class="flex items-baseline gap-1">
+                <span class="font-extrabold tracking-wider text-xs">ACRU</span>
+                <span class="text-[9px] text-lime-400 font-semibold uppercase">Platinum</span>
+              </div>
+              <i class="fa-solid fa-wifi rotate-90 text-white/80 text-xs"></i>
+            </div>
+
+            <!-- Metallic Chip -->
+            <div class="w-8 h-6 rounded bg-amber-400/90 border border-amber-300 flex flex-col justify-evenly p-0.5 shadow-xs">
+              <div class="h-px bg-amber-900/40"></div>
+              <div class="h-px bg-amber-900/40"></div>
+            </div>
+
+            <div class="mono-num text-sm tracking-widest flex gap-2 text-white/90">
+              <span>••••</span><span>••••</span><span>••••</span><span class="font-bold text-white">8492</span>
+            </div>
+
+            <div class="flex justify-between items-end text-[10px]">
+              <div>
+                <span class="text-[8px] text-white/60 block">CARD HOLDER</span>
+                <strong class="tracking-wider">MAHESH PANDA</strong>
+              </div>
+              <div>
+                <span class="text-[8px] text-white/60 block">EXPIRES</span>
+                <span class="mono-num">09/29</span>
+              </div>
+              <span class="italic font-black text-sm">VISA</span>
+            </div>
+          </div>
+
+          <!-- Quick Action Buttons -->
+          <div class="grid grid-cols-4 gap-2 text-center">
+            <button onclick="demoAlert('Top Up balance dialog (Demo)')" class="bg-slate-50 hover:bg-slate-100 p-2 rounded-xl border border-slate-200/80 transition-all flex flex-col items-center gap-1">
+              <div class="w-7 h-7 rounded-full bg-green-100 text-green-700 flex items-center justify-center text-[10px]"><i class="fa-solid fa-plus"></i></div>
+              <span class="text-[10px] font-semibold text-slate-700">Top Up</span>
+            </button>
+            <button onclick="demoAlert('Send money dialog (Demo)')" class="bg-slate-50 hover:bg-slate-100 p-2 rounded-xl border border-slate-200/80 transition-all flex flex-col items-center gap-1">
+              <div class="w-7 h-7 rounded-full bg-lime-100 text-lime-700 flex items-center justify-center text-[10px]"><i class="fa-solid fa-paper-plane"></i></div>
+              <span class="text-[10px] font-semibold text-slate-700">Send</span>
+            </button>
+            <button onclick="demoAlert('Request payment dialog (Demo)')" class="bg-slate-50 hover:bg-slate-100 p-2 rounded-xl border border-slate-200/80 transition-all flex flex-col items-center gap-1">
+              <div class="w-7 h-7 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-[10px]"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+              <span class="text-[10px] font-semibold text-slate-700">Request</span>
+            </button>
+            <button onclick="demoAlert('Card history statement (Demo)')" class="bg-slate-50 hover:bg-slate-100 p-2 rounded-xl border border-slate-200/80 transition-all flex flex-col items-center gap-1">
+              <div class="w-7 h-7 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center text-[10px]"><i class="fa-solid fa-clock-rotate-left"></i></div>
+              <span class="text-[10px] font-semibold text-slate-700">History</span>
+            </button>
+          </div>
+
+          <!-- Quick Contacts: Send Again -->
+          <div class="space-y-2 pt-2 border-t border-slate-100">
+            <div class="flex justify-between items-center">
+              <span class="text-xs font-bold text-slate-800">Send Again</span>
+              <button onclick="demoAlert('All payees list opened')" class="text-[10px] text-slate-400 hover:text-slate-600">See all</button>
+            </div>
+            <div class="flex justify-between items-center gap-2">
+              <button onclick="demoAlert('Quick transfer to Rahul')" class="flex flex-col items-center gap-1">
+                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=70&h=70&q=80" class="w-9 h-9 rounded-full object-cover border border-slate-200">
+                <span class="text-[9px] text-slate-600">Rahul</span>
+              </button>
+              <button onclick="demoAlert('Quick transfer to Ananya')" class="flex flex-col items-center gap-1">
+                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=70&h=70&q=80" class="w-9 h-9 rounded-full object-cover border border-slate-200">
+                <span class="text-[9px] text-slate-600">Ananya</span>
+              </button>
+              <button onclick="demoAlert('Quick transfer to Priya')" class="flex flex-col items-center gap-1">
+                <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=70&h=70&q=80" class="w-9 h-9 rounded-full object-cover border border-slate-200">
+                <span class="text-[9px] text-slate-600">Priya</span>
+              </button>
+              <button onclick="demoAlert('Add new payee')" class="w-9 h-9 rounded-full border border-dashed border-slate-300 text-slate-400 flex items-center justify-center hover:border-slate-800 hover:text-slate-800">
+                <i class="fa-solid fa-plus text-xs"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Recent Transactions -->
+          <div class="space-y-2 pt-2 border-t border-slate-100">
+            <div class="flex justify-between items-center">
+              <span class="text-xs font-bold text-slate-800">Recent Transactions</span>
+              <span class="text-[9px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded">Sample</span>
+            </div>
+            <div class="space-y-1.5">
+              
+              <div class="p-2 rounded-xl bg-slate-50 border border-slate-200/60 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <div class="w-7 h-7 rounded-lg bg-green-100 text-green-700 flex items-center justify-center text-[10px]"><i class="fa-solid fa-building-columns"></i></div>
+                  <div>
+                    <strong class="text-[11px] text-slate-800 block">Salary Credited</strong>
+                    <span class="text-[9px] text-slate-400">Oct 01 • Regular</span>
+                  </div>
+                </div>
+                <span class="mono-num font-bold text-green-700 text-[11px]">+₹80,000</span>
+              </div>
+
+              <div class="p-2 rounded-xl bg-slate-50 border border-slate-200/60 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <div class="w-7 h-7 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center text-[10px]"><i class="fa-solid fa-house"></i></div>
+                  <div>
+                    <strong class="text-[11px] text-slate-800 block">Apartment Rent</strong>
+                    <span class="text-[9px] text-slate-400">Oct 02 • Housing</span>
+                  </div>
+                </div>
+                <span class="mono-num font-bold text-slate-800 text-[11px]">-₹20,000</span>
+              </div>
+
+              <div class="p-2 rounded-xl bg-slate-50 border border-slate-200/60 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <div class="w-7 h-7 rounded-lg bg-slate-200 text-slate-700 flex items-center justify-center text-[10px]"><i class="fa-solid fa-landmark"></i></div>
+                  <div>
+                    <strong class="text-[11px] text-slate-800 block">Loan EMI Debit</strong>
+                    <span class="text-[9px] text-slate-400">Oct 05 • HDFC</span>
+                  </div>
+                </div>
+                <span class="mono-num font-bold text-slate-800 text-[11px]">-₹8,000</span>
+              </div>
+
+              <div class="p-2 rounded-xl bg-slate-50 border border-slate-200/60 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <div class="w-7 h-7 rounded-lg bg-lime-100 text-lime-700 flex items-center justify-center text-[10px]"><i class="fa-solid fa-arrow-trend-up"></i></div>
+                  <div>
+                    <strong class="text-[11px] text-slate-800 block">Mutual Fund SIP</strong>
+                    <span class="text-[9px] text-slate-400">Oct 10 • Nifty 50</span>
+                  </div>
+                </div>
+                <span class="mono-num font-bold text-slate-800 text-[11px]">-₹15,000</span>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Bottom Notice -->
+          <div class="text-[10px] text-slate-400 bg-slate-50 p-2 rounded-lg border border-slate-200/60 flex items-center gap-1.5">
+            <i class="fa-solid fa-shield-halved text-slate-500"></i>
+            <span>Simulated demonstration. No real bank accounts connected.</span>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- EDIT PROFILE SLIDE-IN MODAL -->
+    <div id="profile-drawer" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-3">
+      <div class="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-5 shadow-2xl border border-slate-200 space-y-4 text-slate-800">
+        <div class="flex justify-between items-center pb-2 border-b border-slate-100">
+          <div>
+            <h3 class="font-bold text-base text-slate-900">Your Financial Profile</h3>
+            <span class="text-[11px] text-slate-400">Update figures in Indian Rupees (₹)</span>
+          </div>
+          <button onclick="toggleProfileDrawer()" class="text-slate-400 hover:text-slate-800 text-sm p-1"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <form id="drawer-form" onsubmit="handleProfileSubmit(event)" class="space-y-3">
+          
+          <div class="space-y-1">
+            <label class="font-semibold text-slate-700">Monthly Take-Home Income</label>
+            <input type="number" id="inp-takehome" min="0" step="1000" class="w-full border border-slate-200 rounded-lg p-2 font-mono text-xs focus:border-slate-800 outline-none" value="80000">
+          </div>
+          <div class="space-y-1">
+            <label class="font-semibold text-slate-700">Other Monthly Income</label>
+            <input type="number" id="inp-otherinc" min="0" step="1000" class="w-full border border-slate-200 rounded-lg p-2 font-mono text-xs focus:border-slate-800 outline-none" value="5000">
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 pt-1 border-t border-slate-100">
+            <div>
+              <label class="font-semibold text-slate-700">Housing / Rent</label>
+              <input type="number" id="inp-housing" min="0" step="500" class="w-full border border-slate-200 rounded-lg p-1.5 font-mono text-xs outline-none" value="20000">
+            </div>
+            <div>
+              <label class="font-semibold text-slate-700">Food & Groceries</label>
+              <input type="number" id="inp-food" min="0" step="500" class="w-full border border-slate-200 rounded-lg p-1.5 font-mono text-xs outline-none" value="8000">
+            </div>
+            <div>
+              <label class="font-semibold text-slate-700">Transportation</label>
+              <input type="number" id="inp-transport" min="0" step="500" class="w-full border border-slate-200 rounded-lg p-1.5 font-mono text-xs outline-none" value="4000">
+            </div>
+            <div>
+              <label class="font-semibold text-slate-700">Utilities & Bills</label>
+              <input type="number" id="inp-utilities" min="0" step="500" class="w-full border border-slate-200 rounded-lg p-1.5 font-mono text-xs outline-none" value="3000">
+            </div>
+            <div>
+              <label class="font-semibold text-slate-700">Insurance</label>
+              <input type="number" id="inp-insurance" min="0" step="500" class="w-full border border-slate-200 rounded-lg p-1.5 font-mono text-xs outline-none" value="2000">
+            </div>
+            <div>
+              <label class="font-semibold text-slate-700">Entertainment</label>
+              <input type="number" id="inp-entertainment" min="0" step="500" class="w-full border border-slate-200 rounded-lg p-1.5 font-mono text-xs outline-none" value="3000">
+            </div>
+          </div>
+
+          <div>
+            <label class="font-semibold text-slate-700">Other Living Expenses</label>
+            <input type="number" id="inp-otherexp" min="0" step="500" class="w-full border border-slate-200 rounded-lg p-1.5 font-mono text-xs outline-none" value="5000">
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 pt-1 border-t border-slate-100">
+            <div>
+              <label class="font-semibold text-slate-700">Total Debt</label>
+              <input type="number" id="inp-debt" min="0" step="10000" class="w-full border border-slate-200 rounded-lg p-1.5 font-mono text-xs outline-none" value="500000">
+            </div>
+            <div>
+              <label class="font-semibold text-slate-700">Monthly EMI</label>
+              <input type="number" id="inp-emi" min="0" step="500" class="w-full border border-slate-200 rounded-lg p-1.5 font-mono text-xs outline-none" value="8000">
+            </div>
+            <div>
+              <label class="font-semibold text-slate-700">Current Savings</label>
+              <input type="number" id="inp-savings" min="0" step="5000" class="w-full border border-slate-200 rounded-lg p-1.5 font-mono text-xs outline-none" value="180000">
+            </div>
+            <div>
+              <label class="font-semibold text-slate-700">Current Investments</label>
+              <input type="number" id="inp-investments" min="0" step="10000" class="w-full border border-slate-200 rounded-lg p-1.5 font-mono text-xs outline-none" value="350000">
+            </div>
+          </div>
+
+          <div class="pt-3 flex justify-end gap-2 border-t border-slate-100">
+            <button type="button" onclick="toggleProfileDrawer()" class="px-3.5 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100">Cancel</button>
+            <button type="submit" class="px-4 py-1.5 rounded-lg bg-slate-900 text-white font-semibold hover:bg-green-700">Recalculate Health</button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- INLINE LOGIC FOR EMBEDDED WIDGET -->
+  <script>
+    const DEFAULT_DATA = {
+      takeHome: 80000,
+      otherInc: 5000,
+      housing: 20000,
+      food: 8000,
+      transport: 4000,
+      utilities: 3000,
+      insurance: 2000,
+      entertainment: 3000,
+      otherExp: 5000,
+      debt: 500000,
+      emi: 8000,
+      savings: 180000,
+      investments: 350000
+    };
+
+    let state = { ...DEFAULT_DATA };
+
+    function fmt(val) {
+      if (isNaN(val)) return '₹0';
+      const abs = Math.round(Math.abs(val));
+      const formatted = new Intl.NumberFormat('en-IN').format(abs);
+      return val < 0 ? `-₹${formatted}` : `₹${formatted}`;
+    }
+
+    function toggleProfileDrawer() {
+      const d = document.getElementById('profile-drawer');
+      d.classList.toggle('hidden');
+    }
+
+    function loadDefaultProfile() {
+      state = { ...DEFAULT_DATA };
+      updateProfileInputs();
+      calculateAndRender();
+      demoAlert('Reset to benchmark values');
+    }
+
+    function updateProfileInputs() {
+      document.getElementById('inp-takehome').value = state.takeHome;
+      document.getElementById('inp-otherinc').value = state.otherInc;
+      document.getElementById('inp-housing').value = state.housing;
+      document.getElementById('inp-food').value = state.food;
+      document.getElementById('inp-transport').value = state.transport;
+      document.getElementById('inp-utilities').value = state.utilities;
+      document.getElementById('inp-insurance').value = state.insurance;
+      document.getElementById('inp-entertainment').value = state.entertainment;
+      document.getElementById('inp-otherexp').value = state.otherExp;
+      document.getElementById('inp-debt').value = state.debt;
+      document.getElementById('inp-emi').value = state.emi;
+      document.getElementById('inp-savings').value = state.savings;
+      document.getElementById('inp-investments').value = state.investments;
+    }
+
+    function handleProfileSubmit(e) {
+      e.preventDefault();
+      const num = (id) => Math.max(0, Number(document.getElementById(id).value) || 0);
+
+      state = {
+        takeHome: num('inp-takehome'),
+        otherInc: num('inp-otherinc'),
+        housing: num('inp-housing'),
+        food: num('inp-food'),
+        transport: num('inp-transport'),
+        utilities: num('inp-utilities'),
+        insurance: num('inp-insurance'),
+        entertainment: num('inp-entertainment'),
+        otherExp: num('inp-otherexp'),
+        debt: num('inp-debt'),
+        emi: num('inp-emi'),
+        savings: num('inp-savings'),
+        investments: num('inp-investments')
+      };
+
+      toggleProfileDrawer();
+      calculateAndRender();
+      demoAlert('ACRU Dashboard recalculated!');
+    }
+
+    function calculateAndRender() {
+      const inc = state.takeHome + state.otherInc;
+      const exp = state.housing + state.food + state.transport + state.utilities + state.insurance + state.entertainment + state.otherExp;
+      const emi = state.emi;
+      const cashFlow = inc - exp - emi;
+      const savingsRate = inc > 0 ? (cashFlow / inc) * 100 : 0;
+      const dti = inc > 0 ? (emi / inc) * 100 : 0;
+      const emg = exp > 0 ? (state.savings / exp) : (state.savings > 0 ? 12 : 0);
+      const netWorth = state.savings + state.investments - state.debt;
+      const annual = cashFlow * 12;
+
+      // Score
+      let pSav = savingsRate >= 30 ? 30 : (savingsRate >= 20 ? 20 : (savingsRate >= 10 ? 12 : (savingsRate >= 0 ? 5 : 0)));
+      let pDti = dti <= 10 ? 25 : (dti <= 20 ? 20 : (dti <= 30 ? 12 : (dti <= 40 ? 6 : 0)));
+      let pEmg = emg >= 6 ? 25 : (emg >= 3 ? 20 : (emg >= 1 ? 12 : 5));
+      let pCf = cashFlow < 0 ? 0 : (inc > 0 && (cashFlow / inc * 100) >= 30 ? 20 : ((cashFlow / inc * 100) >= 20 ? 15 : ((cashFlow / inc * 100) >= 10 ? 10 : 5)));
+      const totalScore = Math.min(100, Math.max(0, pSav + pDti + pEmg + pCf));
+
+      let grade = 'Critical';
+      if (totalScore >= 80) grade = 'Excellent';
+      else if (totalScore >= 65) grade = 'Good';
+      else if (totalScore >= 50) grade = 'Fair';
+      else if (totalScore >= 30) grade = 'Needs Attention';
+
+      // Update DOM
+      document.getElementById('disp-networth').textContent = fmt(netWorth);
+      document.getElementById('disp-income').textContent = fmt(inc);
+      document.getElementById('disp-expenses').textContent = fmt(exp);
+      document.getElementById('disp-expense-sub').textContent = `${(inc > 0 ? (exp/inc*100) : 0).toFixed(1)}% of total income`;
+      document.getElementById('disp-saved').textContent = fmt(cashFlow);
+      document.getElementById('disp-savings-sub').textContent = `Savings Rate: ${savingsRate.toFixed(1)}%`;
+
+      // Spending limit
+      const limit = inc * 0.60;
+      const limitPct = limit > 0 ? (exp / limit * 100) : 0;
+      document.getElementById('disp-spent-num').textContent = fmt(exp);
+      document.getElementById('disp-spent-cap').textContent = `/ ${fmt(limit)} Limit`;
+      document.getElementById('bar-spending-fill').style.width = `${Math.min(100, limitPct)}%`;
+      document.getElementById('disp-spent-pct').textContent = `${limitPct.toFixed(1)}%`;
+
+      const remaining = limit - exp;
+      const safeEl = document.getElementById('disp-safe-cushion');
+      const badgeSpending = document.getElementById('badge-spending');
+      if (remaining >= 0) {
+        safeEl.innerHTML = `<i class="fa-solid fa-circle-check text-green-600"></i> ${fmt(remaining)} safe cushion`;
+        badgeSpending.textContent = 'On Track';
+        badgeSpending.className = 'text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-green-100 text-green-700';
+      } else {
+        safeEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-orange-500"></i> ${fmt(Math.abs(remaining))} over 60% rule`;
+        badgeSpending.textContent = 'Over Limit';
+        badgeSpending.className = 'text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-orange-100 text-orange-700';
+      }
+
+      document.getElementById('disp-needs').textContent = fmt(state.housing + state.food + state.transport + state.utilities + state.insurance);
+      document.getElementById('disp-wants').textContent = fmt(state.entertainment + state.otherExp);
+      document.getElementById('disp-emi').textContent = fmt(state.emi);
+
+      // Score
+      document.getElementById('disp-score-num').textContent = totalScore;
+      document.getElementById('badge-score-grade').textContent = grade;
+      const circ = 251.3;
+      document.getElementById('svg-score-fill').style.strokeDashoffset = circ - (totalScore / 100) * circ;
+
+      document.getElementById('pts-sav').textContent = `${pSav} / 30`;
+      document.getElementById('bar-sav').style.width = `${(pSav/30)*100}%`;
+      document.getElementById('pts-dti').textContent = `${pDti} / 25`;
+      document.getElementById('bar-dti').style.width = `${(pDti/25)*100}%`;
+      document.getElementById('pts-emg').textContent = `${pEmg} / 25`;
+      document.getElementById('bar-emg').style.width = `${(pEmg/25)*100}%`;
+      document.getElementById('pts-cf').textContent = `${pCf} / 20`;
+      document.getElementById('bar-cf').style.width = `${(pCf/20)*100}%`;
+
+      // Cost analysis
+      renderCostBar(exp);
+
+      // Budget tips
+      renderTips(cashFlow, savingsRate, dti, emg);
+
+      // Goals
+      const emgTarget = exp * 6;
+      const emgPct = emgTarget > 0 ? Math.min(100, (state.savings / emgTarget) * 100) : 100;
+      document.getElementById('goal-emg-pct').textContent = `${emgPct.toFixed(1)}%`;
+      document.getElementById('goal-emg-bar').style.width = `${emgPct}%`;
+      document.getElementById('goal-emg-txt').textContent = `${emg.toFixed(1)} of 6.0 months (${fmt(state.savings)})`;
+
+      const annTarget = 500000;
+      const annPct = Math.min(100, (Math.max(0, annual) / annTarget) * 100);
+      document.getElementById('goal-ann-pct').textContent = `${annPct.toFixed(1)}%`;
+      document.getElementById('goal-ann-bar').style.width = `${annPct}%`;
+      document.getElementById('goal-ann-txt').textContent = `${fmt(Math.max(0, annual))} / ₹5,00,000`;
+
+      const invTarget = 1000000;
+      const invPct = Math.min(100, (state.investments / invTarget) * 100);
+      document.getElementById('goal-inv-pct').textContent = `${invPct.toFixed(1)}%`;
+      document.getElementById('goal-inv-bar').style.width = `${invPct}%`;
+      document.getElementById('goal-inv-txt').textContent = `${fmt(state.investments)} / ₹10,00,000`;
+    }
+
+    function renderCostBar(total) {
+      document.getElementById('disp-cost-total').textContent = `${fmt(total)} / mo`;
+      const cats = [
+        { name: 'Housing', val: state.housing, color: '#15803D' },
+        { name: 'Food', val: state.food, color: '#84CC16' },
+        { name: 'Transport', val: state.transport, color: '#F97316' },
+        { name: 'Utilities', val: state.utilities, color: '#F59E0B' },
+        { name: 'Insurance', val: state.insurance, color: '#6366F1' },
+        { name: 'Leisure', val: state.entertainment, color: '#EC4899' },
+        { name: 'Other', val: state.otherExp, color: '#64748B' }
+      ];
+
+      const bar = document.getElementById('cost-bar');
+      const leg = document.getElementById('cost-legend');
+      bar.innerHTML = '';
+      leg.innerHTML = '';
+
+      cats.forEach(c => {
+        const pct = total > 0 ? (c.val / total * 100) : 0;
+        if (pct > 0) {
+          const seg = document.createElement('div');
+          seg.style.width = `${pct}%`;
+          seg.style.backgroundColor = c.color;
+          seg.className = 'h-full transition-all';
+          seg.title = `${c.name}: ${fmt(c.val)} (${pct.toFixed(0)}%)`;
+          bar.appendChild(seg);
+        }
+
+        const item = document.createElement('div');
+        item.className = 'flex items-center justify-between';
+        item.innerHTML = `
+          <div class="flex items-center gap-1.5 truncate">
+            <span class="w-2 h-2 rounded-full shrink-0" style="background:${c.color}"></span>
+            <span class="text-slate-500 truncate">${c.name}</span>
+          </div>
+          <span class="mono-num font-semibold text-slate-800">${fmt(c.val)}</span>
+        `;
+        leg.appendChild(item);
+      });
+    }
+
+    function renderTips(cf, sr, dti, emg) {
+      const c = document.getElementById('tips-container');
+      c.innerHTML = '';
+      const list = [];
+
+      if (cf < 0) {
+        list.push({ title: 'Cash Flow Deficit', text: `Expenses exceed income by ${fmt(Math.abs(cf))}. Immediate lifestyle trim recommended.`, border: 'border-l-orange-500' });
+      } else if (sr >= 30) {
+        list.push({ title: 'Strong Savings Velocity', text: `Saving ${sr.toFixed(1)}% provides capital to compound in equity mutual funds.`, border: 'border-l-green-600' });
+      }
+
+      if (dti > 35) {
+        list.push({ title: 'High Debt Ratio', text: `EMI takes ${dti.toFixed(1)}% of income. Focus on paying down highest-interest liabilities.`, border: 'border-l-orange-500' });
+      } else if (dti <= 15) {
+        list.push({ title: 'Low Debt Encumbrance', text: `DTI of ${dti.toFixed(1)}% creates immense breathing room in your monthly cash flow.`, border: 'border-l-green-600' });
+      }
+
+      if (emg < 3) {
+        list.push({ title: 'Build Liquid Cushion', text: `Savings cover ${emg.toFixed(1)} months. Aim for a 3 to 6-month safety net.`, border: 'border-l-amber-500' });
+      } else {
+        list.push({ title: 'Healthy Emergency Cushion', text: `You have ${emg.toFixed(1)} months of expenses securely banked.`, border: 'border-l-lime-600' });
+      }
+
+      list.slice(0, 3).forEach(t => {
+        const d = document.createElement('div');
+        d.className = `p-2 rounded-xl bg-slate-50 border border-slate-200/80 border-l-4 ${t.border}`;
+        d.innerHTML = `<strong class="text-slate-800 block text-[11px]">${t.title}</strong><p class="text-slate-500 text-[10px] mt-0.5">${t.text}</p>`;
+        c.appendChild(d);
+      });
+    }
+
+    function demoAlert(msg) {
+      // In-app lightweight notification
+      const el = document.createElement('div');
+      el.className = 'fixed bottom-4 right-4 z-50 bg-slate-900 text-white px-3 py-2 rounded-xl shadow-lg text-xs font-semibold flex items-center gap-2 border border-slate-700 animate-bounce';
+      el.innerHTML = `<i class="fa-solid fa-circle-info text-lime-400"></i> <span>${msg}</span>`;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 2500);
+    }
+
+    // Initialize on load
+    calculateAndRender();
+  </script>
+</body>
+</html>
