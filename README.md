@@ -2,6 +2,8 @@
 
 **Tagline:** *Understand your money. Improve your financial health.*
 
+[![💰 Live Demo](https://img.shields.io/badge/💰_LIVE_DEMO-Finance_Health_Dashboard-047857?style=for-the-badge)](https://themahespanda.github.io/Finance-Health-Dashboard/)
+
 ACRU Finance is a high-performance, responsive personal finance analytics dashboard built with a professional fintech design system. It brings together cash flow analytics, spending limits, multi-category cost analysis, transparent financial health scoring, goal tracking, rule-based budget optimization tips, and an interactive debit card interface.
 
 ---
